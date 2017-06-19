@@ -78,11 +78,15 @@ int main(int argc, char *argv[])
   for (int x = 0; x < WIDTH; x++) {
     for (int y = 0; y < HEIGHT; y++) {
       if (x < (WIDTH - 1))
-	if (map[x][y] == 1 && map[x + 1][y] == 1)
+	if (map[x][y] == 1 && map[x + 1][y] == 1) {
 	  graph_add_edge(g, x + y * WIDTH, (x + 1) + y * WIDTH);
+	  graph_add_edge(g, (x + 1) + y * WIDTH, x + y * WIDTH);
+	}
        if (y < (HEIGHT - 1))
-	if (map[x][y] == 1 && map[x][y + 1] == 1)
-	  graph_add_edge(g, x + y * WIDTH, x + (y + 1) * WIDTH);
+	 if (map[x][y] == 1 && map[x][y + 1] == 1) {
+	   graph_add_edge(g, x + y * WIDTH, x + (y + 1) * WIDTH);
+	   graph_add_edge(g, x + (y + 1) * WIDTH, x + y * WIDTH);
+	 }
     }
   }
 
@@ -97,6 +101,7 @@ int main(int argc, char *argv[])
 
 gpointer start_server(gpointer args)
 {
+  connfd = 0;
   //creation of the socket
   listenfd = socket (AF_INET, SOCK_STREAM, 0);
     
@@ -120,6 +125,7 @@ gpointer start_server(gpointer args)
       printf("%s\n", buf);
       memset(buf, 0, sizeof(buf));
     }
+    connfd = 0;
   }
 }
 
@@ -145,16 +151,17 @@ static void callback(GtkWidget *widget, gpointer data) {
     j--;
   }
 
-  char cmd[MAXLINE];
-
-  strcpy(cmd, "DIR:");
+  strcpy(sendline, "DIR:");
 
   for (i = 0; i < size - 1; i++) {
-    strcat(cmd, getDir(path[i], path[i + 1]));
+    strcat(sendline, getDir(path[i], path[i + 1]));
     if (i < size - 2)
-      strcat(cmd, "|");
+      strcat(sendline, "|");
   }
-  printf("%s\n", cmd);
+  printf("%s\n", sendline);
+  if (connfd != 0) {
+    send(connfd, sendline, strlen(sendline), 0); 
+  }
 
   search_info_destroy(s);
 }

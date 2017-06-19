@@ -131,6 +131,33 @@ gpointer start_server(gpointer args)
 
 static void callback(GtkWidget *widget, gpointer data) {
   Point p = getPosition(widget);
+  int flag = 0;
+
+  if (map[p.x][p.y] == 2) {
+    map[p.x][p.y] = 1;
+    if (p.x + 1 < WIDTH)
+      if (map[p.x + 1][p.y] == 1) {
+	graph_add_edge(g, p.x + p.y * WIDTH, (p.x + 1) + p.y * WIDTH);
+	graph_add_edge(g, (p.x + 1) + p.y * WIDTH, p.x + p.y * WIDTH);
+      }
+    if (p.x > 0)
+      if (map[p.x - 1][p.y] == 1) {
+	graph_add_edge(g, p.x + p.y * WIDTH, (p.x - 1) + p.y * WIDTH);
+	graph_add_edge(g, (p.x - 1) + p.y * WIDTH, p.x + p.y * WIDTH);
+      }
+    if (p.y + 1 < HEIGHT)
+      if (map[p.x][p.y + 1] == 1) {
+	graph_add_edge(g, p.x + p.y * WIDTH, p.x + (p.y + 1) * WIDTH);
+	graph_add_edge(g, p.x + (p.y + 1) * WIDTH, p.x + p.y * WIDTH);
+      }
+    if (p.y > 0)
+      if (map[p.x][p.y - 1] == 1) {
+	graph_add_edge(g, p.x + p.y * WIDTH, p.x + (p.y - 1) * WIDTH);
+	graph_add_edge(g, p.x + (p.y - 1) * WIDTH, p.x + p.y * WIDTH);
+      }
+  }
+  else
+    return;
 
   struct search_info *s = search_info_create(g);
   

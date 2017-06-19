@@ -1,3 +1,0 @@
-typedef struct graph *Graph;
-
-typedef struct node *Node;
